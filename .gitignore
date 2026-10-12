@@ -1,0 +1,70 @@
+# ==========================================
+# Environments & Secrets
+# ==========================================
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# ==========================================
+# AI Agents & IDE Assistants
+# ==========================================
+.agents/
+.agent/
+.workbuddy-ai/
+skills-lock.json
+.gemini/
+.claude/
+.cursor/
+
+# ==========================================
+# Python & Virtual Environments
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+backend/.venv/
+.venv/
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ==========================================
+# Frontend (Node & Vite)
+# ==========================================
+node_modules/
+**/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# ==========================================
+# IDEs, OS & Editors
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
