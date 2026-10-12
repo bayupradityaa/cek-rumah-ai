@@ -17,6 +17,10 @@ const billionFormatter = new Intl.NumberFormat('id-ID', {
   maximumFractionDigits: 1,
 });
 
+const millionFormatter = new Intl.NumberFormat('id-ID', {
+  maximumFractionDigits: 1,
+});
+
 const plainNumberFormatter = new Intl.NumberFormat('id-ID', {
   maximumFractionDigits: 0,
 });
@@ -31,9 +35,17 @@ export function formatRupiah(value) {
   return rupiahFormatter.format(value);
 }
 
-/** Contoh keluaran: `≈ Rp 4,2 Miliar` (koma sebagai pemisah desimal). */
+/**
+ * Nilai pembulatan nominal besar:
+ * - `>= 1 Miliar`: `≈ Rp 4,2 Miliar`
+ * - `< 1 Miliar` : `≈ Rp 900 Juta`
+ */
 export function formatBillion(value) {
   if (!isFiniteNumber(value)) return '—';
+  if (value < 1_000_000_000) {
+    const millions = value / 1_000_000;
+    return `≈ Rp ${millionFormatter.format(millions)} Juta`;
+  }
   return `≈ Rp ${billionFormatter.format(value / 1_000_000_000)} Miliar`;
 }
 
@@ -49,8 +61,16 @@ export function formatNumber(value) {
   return plainNumberFormatter.format(value);
 }
 
-/** Bentuk ringkas untuk rentang harga, contoh: `Rp 3,2 M`. */
+/**
+ * Bentuk ringkas untuk rentang harga:
+ * - `>= 1 Miliar`: `Rp 1,4 M`
+ * - `< 1 Miliar` : `Rp 900 Jt`
+ */
 export function formatRupiahShort(value) {
   if (!isFiniteNumber(value)) return '—';
+  if (value < 1_000_000_000) {
+    const millions = value / 1_000_000;
+    return `Rp ${millionFormatter.format(millions)} Jt`;
+  }
   return `Rp ${billionFormatter.format(value / 1_000_000_000)} M`;
 }
