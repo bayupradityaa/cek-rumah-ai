@@ -1,4 +1,10 @@
-import { formatBillion, formatNumber, formatPerM2, formatRupiah, formatRupiahShort } from '../utils/format.js';
+import {
+  formatBillion,
+  formatNumber,
+  formatPerM2,
+  formatRupiahShort,
+  formatRupiahWrap,
+} from '../utils/format.js';
 
 const RANGE_FACTOR = 0.25;
 
@@ -19,22 +25,24 @@ export default function ResultCard({ result, payload, onReset }) {
   return (
     <section className="card result result--enter">
       <p className="result__label">Estimasi harga rumah</p>
-      <p className="result__price">{formatRupiah(price)}</p>
+      <p className="result__price">{formatRupiahWrap(price)}</p>
       <p className="result__billion">{formatBillion(price)}</p>
 
-      <p className="result__range">
-        Perkiraan rentang: {formatRupiahShort(low)} – {formatRupiahShort(high)}
-      </p>
+      <div className="result__metrics">
+        <div className="result__metric">
+          <p className="result__metric-label">Perkiraan rentang</p>
+          <p className="result__metric-value">
+            {formatRupiahShort(low)} – {formatRupiahShort(high)}
+          </p>
+        </div>
+        <div className="result__metric">
+          <p className="result__metric-label">Harga per m² tanah</p>
+          <p className="result__metric-value">{formatPerM2(price, payload?.land_area)}</p>
+        </div>
+      </div>
       <p className="result__note">
         Rentang indikatif (±25%) — bukan interval keyakinan statistik.
       </p>
-
-      <dl className="result__facts">
-        <div>
-          <dt>Harga per m² tanah</dt>
-          <dd>{formatPerM2(price, payload?.land_area)}</dd>
-        </div>
-      </dl>
 
       <div className="result__summary">
         <h3>Ringkasan spesifikasi Anda</h3>
@@ -51,7 +59,7 @@ export default function ResultCard({ result, payload, onReset }) {
 
       <div className="result__actions">
         <button type="button" className="btn btn--ghost btn--block" onClick={onReset}>
-          Hitung Ulang
+          Isi Data Baru
         </button>
       </div>
     </section>

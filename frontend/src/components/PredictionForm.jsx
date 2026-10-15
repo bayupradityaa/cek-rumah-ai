@@ -31,10 +31,21 @@ function WarnIcon() {
   );
 }
 
+function ErrorIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="8.6" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12 8.2v4.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="12" cy="15.9" r="1" fill="currentColor" />
+    </svg>
+  );
+}
+
 function FieldError({ id, message }) {
   if (!message) return null;
   return (
     <p className="field__error" id={id}>
+      <ErrorIcon />
       {message}
     </p>
   );

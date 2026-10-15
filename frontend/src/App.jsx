@@ -182,8 +182,22 @@ function clearStoredSearch() {
   }
 }
 
+/* Gulir halus dimatikan bila pengguna menyalakan "kurangi gerak" — perilaku
+   ini sejalan dengan aturan `scroll-behavior` di CSS. */
+function preferredScrollBehavior() {
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return reduceMotion ? 'auto' : 'smooth';
+}
+
 /* --------------------------------------------------------------------------
-   Aplikasi
+   Reveal saat masuk viewport
+   --------------------------------------------------------------------------
+   Elemen bertanda `data-reveal` memulai dalam keadaan tergeser (lihat CSS).
+   Tanpa JavaScript — atau bila pengguna mematikan motion — elemen langsung
+   ditandai `in` agar tidak ada konten yang tersembunyi.
    -------------------------------------------------------------------------- */
 
 export default function App() {
@@ -206,6 +220,36 @@ export default function App() {
 
   const warning = useMemo(() => buildWarning(form), [form]);
 
+  /* Reveal: satu observer untuk seluruh halaman. Node ditandai `in` sekali
+     saat masuk viewport, lalu tidak diamati lagi. */
+  useEffect(() => {
+    const nodes = Array.from(document.querySelectorAll('[data-reveal]'));
+    if (nodes.length === 0) return undefined;
+
+    const prefersReducedMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion || typeof IntersectionObserver === 'undefined') {
+      nodes.forEach((node) => node.setAttribute('data-reveal', 'in'));
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.setAttribute('data-reveal', 'in');
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.08 }
+    );
+
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(
     () => () => {
       abortRef.current?.abort();
@@ -215,9 +259,19 @@ export default function App() {
 
   useEffect(() => {
     if (status !== 'success' || !hasSubmittedRef.current) return;
-    if (typeof window === 'undefined' || !window.matchMedia) return;
-    if (!window.matchMedia('(max-width: 1023px)').matches) return;
-    resultRegionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const region = resultRegionRef.current;
+    if (!region || typeof window === 'undefined' || !window.matchMedia) return;
+
+    const behavior = preferredScrollBehavior();
+
+    /* Ponsel & tablet: kartu hasil berada di bawah formulir, jadi dibawa ke
+       atas layar. Desktop: kartu hasil ada di kolom kanan — cukup digulir
+       seperlunya agar angkanya masuk viewport tanpa kehilangan konteks. */
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+      region.scrollIntoView({ behavior, block: 'start' });
+    } else {
+      region.scrollIntoView({ behavior, block: 'nearest' });
+    }
   }, [status, resultNonce]);
 
   const runPrediction = useCallback(async (payload) => {
@@ -270,7 +324,7 @@ export default function App() {
       const element = fieldRefs.current[firstInvalid];
       if (element) {
         element.focus({ preventScroll: true });
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'center' });
       }
       return;
     }
@@ -294,11 +348,11 @@ export default function App() {
     setStatus('idle');
     setLastPayload(null);
     clearStoredSearch();
-    formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    formSectionRef.current?.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' });
   }, []);
 
   const scrollToForm = useCallback(() => {
-    formSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    formSectionRef.current?.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' });
     const firstField = fieldRefs.current.city;
     if (firstField) {
       window.setTimeout(() => firstField.focus({ preventScroll: true }), 420);
@@ -318,7 +372,7 @@ export default function App() {
 
         <section className="section estimate" id="estimasi" ref={formSectionRef}>
           <div className="container">
-            <div className="section__head">
+            <div className="section__head" data-reveal>
               <p className="section__eyebrow">Estimasi</p>
               <h2 className="section__title">Hitung estimasi harga rumah Anda</h2>
               <p className="section__lead">

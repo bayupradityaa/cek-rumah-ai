@@ -1,9 +1,8 @@
 /**
- * Pemformatan angka untuk seluruh antarmuka.
- *
- * Semua pemformatan mata uang mengandalkan Intl.NumberFormat locale `id-ID`
- * sehingga pemisah ribuan (titik) dan spasi non-breaking setelah "Rp"
- * ditangani langsung oleh mesin JavaScript — tidak ada logika replace manual.
+ * Pemformatan angka untuk seluruh antarmuka. Semua mata uang diserahkan ke
+ * Intl.NumberFormat locale `id-ID` (pemisah ribuan titik, spasi non-breaking
+ * setelah "Rp"). Satu pengecualian: `formatRupiahWrap` mengganti spasi itu
+ * menjadi spasi biasa agar angka utama kartu hasil boleh turun baris utuh.
  */
 
 const rupiahFormatter = new Intl.NumberFormat('id-ID', {
@@ -33,6 +32,16 @@ function isFiniteNumber(value) {
 export function formatRupiah(value) {
   if (!isFiniteNumber(value)) return '—';
   return rupiahFormatter.format(value);
+}
+
+/**
+ * Varian untuk angka utama kartu hasil: spasi setelah "Rp" dijadikan spasi
+ * biasa sehingga pada layar sempit angka panjang turun baris utuh setelah
+ * "Rp", bukan terbelah di tengah digit.
+ */
+export function formatRupiahWrap(value) {
+  if (!isFiniteNumber(value)) return '—';
+  return rupiahFormatter.format(value).replaceAll('\u00A0', ' ');
 }
 
 /**

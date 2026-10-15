@@ -58,6 +58,9 @@ frontend/dist/
 frontend/dist-ssr/
 frontend/*.local
 
+# Artefak QA visual (screenshot + skrip tangkap) — bukan bagian dari produk
+frontend/.qa-shots/
+
 # ==========================================
 # IDEs, OS & Editors
 # ==========================================

@@ -45,7 +45,7 @@ export default function HowItWorks() {
   return (
     <section className="section" id="cara-kerja">
       <div className="container">
-        <div className="section__head">
+        <div className="section__head" data-reveal>
           <p className="section__eyebrow">Cara Kerja</p>
           <h2 className="section__title">Tiga langkah, tanpa ribet</h2>
           <p className="section__lead">
@@ -57,7 +57,12 @@ export default function HowItWorks() {
             sehingga penomoran menyampaikan informasi, bukan dekorasi. */}
         <ol className="steps">
           {STEPS.map((step, index) => (
-            <li className="step" key={step.title}>
+            <li
+              className="step"
+              key={step.title}
+              data-reveal
+              style={{ '--reveal-delay': `${index * 90}ms` }}
+            >
               <span className="step__index">{index + 1}</span>
               <h3 className="step__title">{step.title}</h3>
               <p className="step__text">{step.text}</p>
@@ -75,7 +80,7 @@ export function Faq() {
       <div className="container">
         <div className="faq">
           <div className="faq__intro">
-            <div className="section__head">
+            <div className="section__head" data-reveal>
               <p className="section__eyebrow">FAQ</p>
               <h2 className="section__title">Pertanyaan yang sering diajukan</h2>
               <p className="section__lead">
@@ -84,7 +89,7 @@ export function Faq() {
             </div>
           </div>
 
-          <div className="faq__list">
+          <div className="faq__list" data-reveal style={{ '--reveal-delay': '90ms' }}>
             {FAQ_ITEMS.map((item) => (
               <details className="faq__item" key={item.question}>
                 <summary className="faq__question">{item.question}</summary>

@@ -51,18 +51,42 @@ function AnimatedBurger({ open }) {
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const burgerRef = useRef(null);
+  const panelRef = useRef(null);
 
-  // Kunci scroll halaman saat drawer mobile terbuka & tangani tombol Escape
+  // Kunci scroll halaman saat drawer mobile terbuka, pindahkan fokus ke dalam
+  // panel, kurung fokus di sana, dan tangani tombol Escape.
   useEffect(() => {
     if (!menuOpen) return undefined;
 
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
+    const panel = panelRef.current;
+    const focusables = panel
+      ? Array.from(panel.querySelectorAll('a[href], button:not([disabled])'))
+      : [];
+    focusables[0]?.focus();
+
     const onKeyDown = (event) => {
       if (event.key === 'Escape') {
         burgerRef.current?.focus();
         setMenuOpen(false);
+        return;
+      }
+
+      if (event.key !== 'Tab' || focusables.length === 0) return;
+
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+      const insidePanel = panel ? panel.contains(active) : false;
+
+      if (event.shiftKey && (!insidePanel || active === first)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (!insidePanel || active === last)) {
+        event.preventDefault();
+        first.focus();
       }
     };
 
@@ -90,6 +114,11 @@ export default function Navbar() {
     burgerRef.current?.focus();
   };
 
+  const closeFromScrim = () => {
+    setMenuOpen(false);
+    burgerRef.current?.focus();
+  };
+
   return (
     <header className={`navbar ${menuOpen ? 'navbar--open' : ''}`} id="beranda">
       {/* Backdrop scrim dengan transisi halus */}
@@ -97,7 +126,7 @@ export default function Navbar() {
         <div
           className="navbar__scrim"
           aria-hidden="true"
-          onClick={() => setMenuOpen(false)}
+          onClick={closeFromScrim}
         />
       ) : null}
 
@@ -143,7 +172,14 @@ export default function Navbar() {
 
       {/* Drawer Panel Mobile (Floating Sheet Beranimasi) */}
       {menuOpen ? (
-        <div className="navbar__panel" id="navbar-panel" role="dialog" aria-modal="true" aria-label="Menu navigasi mobile">
+        <div
+          className="navbar__panel"
+          id="navbar-panel"
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu navigasi mobile"
+        >
           <nav aria-label="Navigasi utama mobile">
             <ul className="navbar__panel-links">
               {NAV_LINKS.map((link) => (

@@ -26,7 +26,7 @@ export default function Footer() {
             </span>
           </p>
           <p className="footer__meta">
-            Repositori prediksi-rumah-dki · © {year} RumahKita AI
+            © {year} RumahKita AI · Estimasi harga rumah DKI Jakarta
           </p>
         </div>
         <p className="footer__stack">
